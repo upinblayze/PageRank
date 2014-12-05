@@ -25,17 +25,35 @@ function TM = createTransitionMatrix( fileName )
 % from fileName
 s=load(fileName);
 M=spconvert(s);
-[rows,cols]=size(M);
+
+rows=length(M);
+
 %     divide each row item by the number of edges in the row
 counts=sum(spones(M),2);
 
-parfor row=1:rows
-    row
-    if(counts(row,1)~=0)
-        M(row,:)=M(row,:)/counts(row,1);
+% check to see the size of matrix and use parallel computing for 10,000 X
+% 10,000 matrix other wise just a regular for loop
+if(rows>10000)
+    parfor row=1:rows
+        row
+        if(counts(row,1)~=0)
+            M(row,:)=M(row,:)/counts(row,1);
+        end
     end
+    M(isnan(M))=0;
+else
+    for row=1:rows
+        if(counts(row,1)~=0)
+            M(row,:)=M(row,:)/counts(row,1);
+        end
+    end
+
 end
+
+% replaces all NaNs with zeros
+
 M(isnan(M))=0;
+%     return the transpose matrix;
 TM=M';
 end
 
@@ -45,10 +63,24 @@ function [k,rank]=pageRankVector(TM)
 % TM=transition matrix
 % outputs the eigenvector and the number of iterations it needs to succeed
 
-[length,width]=size(TM);
+[rows,columns]=size(TM);
 
-v=ones(width,1);
-v=v/width;
+%     necessary in case the matrix is not square (sparse matrix may have a
+%     blank bottom rows or columns)
+%     if length>width
+%        M=zeros(length);
+%     else
+%        M=zeros(width);
+%     end
+%     M(1:length,1:width)=TM;
+%     for l=1:length
+%        for w=1:width
+%             M(l,w)=TM(l,w);
+%        end
+%     end
+%     TM=M;
+v=ones(columns,1);
+v=v/columns;
 k=1;
 tmp=TM*v;
 %     repeatedly multiply by itself until the tmp converges/creates
