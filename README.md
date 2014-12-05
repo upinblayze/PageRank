@@ -16,8 +16,8 @@ http://www.math.cornell.edu/~mec/Winter2009/RalucaRemus/Lecture3/lecture3.html
   -FilePath is the file path surrounded by single quotes to the sparse adjacency matrix file<br>
   -alpha is the alpha value used to dampening (assignment says dampening factor .85=(1-alpha) so alpha=.15)
   <br>
+  
 To run the test matrix assigned
-========
 files needed:<br>
 -PageRank.m<br>
 -graph.txt<br>
