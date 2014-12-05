@@ -7,54 +7,67 @@ function [rank,values,eigen,k]=PageRank(fileName,alpha)
 % values returns the value of associated values of the ranks
 % eigen returns the full eigenvecter
 % k returns the number of iterations necessary to complete converge
-TM=createTransitionMatrix(fileName);
-%     [pk,prank]=pageRankVector(TM)
-rank2=PageRanker(TM,alpha);
-[k, eigen]=pageRankVector(rank2);
-[v,r]=sort(eigen,'descend');
-row=size(eigen);
-mini=min(row,100);
-values=v(1:mini,1);
-rank=r(1:mini,1);
+    TM=createTransitionMatrix(fileName);
+% [pk,prank]=pageRankVector(TM)
+    rank2=PageRanker(TM,alpha);
+    [k, eigen]=pageRankVector(rank2);
+    [v,r]=sort(eigen,'descend');
+    row=size(eigen);
+    mini=min(row,100);
+    values=v(1:mini,1);
+    rank=r(1:mini,1);
 
 end
 
 
 function TM = createTransitionMatrix( fileName )
 % createTransitionMatrix - makes a transition matrix out of a sparse matrix
-% from fileName
-s=load(fileName);
-M=spconvert(s);
+% from fileName. Outputs a full matrix since dampening will make the matrix
+% not sparse
+    s=load(fileName);
+    M=spconvert(s);
 
-rows=length(M);
+% turn into a regular matrix
+    M=full(M)
+    [w,lgth]=size(M);
+    if w>lgth
+       sM=w;
+    else
+        sM=lgth;
+    end
 
-%     divide each row item by the number of edges in the row
-counts=sum(spones(M),2);
+% ensure matrix is square
+    resize=zeros(1,sM);
+    resize(1:w,1:lgth)=M(1:w,1:lgth);
 
+% get the number of ones in each row
+    counts=sum(spones(resize),2)
+    full(resize)
 % check to see the size of matrix and use parallel computing for 10,000 X
-% 10,000 matrix other wise just a regular for loop
-if(rows>10000)
-    parfor row=1:rows
-        row
-        if(counts(row,1)~=0)
-            M(row,:)=M(row,:)/counts(row,1);
+% 10,000 matrix other wise just a regular for loop. Divide each row by the
+% number of ones in that row.
+    if(sM>10000)
+        parfor row=1:sM
+            if(counts(row,1)~=0)
+                resize(row,:)=resize(row,:)/counts(row,1);
+            end
         end
-    end
-    M(isnan(M))=0;
-else
-    for row=1:rows
-        if(counts(row,1)~=0)
-            M(row,:)=M(row,:)/counts(row,1);
+        resize(isnan(resize))=0;
+    else
+        for row=1:sM
+            if(counts(row,1)~=0)
+                resize(row,:)=resize(row,:)/counts(row,1);
+            end
         end
-    end
 
-end
+    end
 
 % replaces all NaNs with zeros
 
-M(isnan(M))=0;
-%     return the transpose matrix;
-TM=M';
+    resize(isnan(resize))=0;
+% return the transpose matrix (matrix is row stochastic, turn to column
+% stochastic)
+    TM=resize';
 end
 
 
@@ -63,42 +76,27 @@ function [k,rank]=pageRankVector(TM)
 % TM=transition matrix
 % outputs the eigenvector and the number of iterations it needs to succeed
 
-[rows,columns]=size(TM);
+    [rows,columns]=size(TM);
 
-%     necessary in case the matrix is not square (sparse matrix may have a
-%     blank bottom rows or columns)
-%     if length>width
-%        M=zeros(length);
-%     else
-%        M=zeros(width);
-%     end
-%     M(1:length,1:width)=TM;
-%     for l=1:length
-%        for w=1:width
-%             M(l,w)=TM(l,w);
-%        end
-%     end
-%     TM=M;
-v=ones(columns,1);
-v=v/columns;
-k=1;
-tmp=TM*v;
-%     repeatedly multiply by itself until the tmp converges/creates
-%     eigenvector
-while tmp~=TM*tmp
-    %         just to keep track of iterations k
-    tmp=TM*tmp;
-    k=k+1;
-end
-rank=tmp;
+    v=ones(columns,1);
+    v=v/columns
+    k=1;
+    tmp=TM*v;
+% repeatedly multiply by itself until the tmp converges/creates
+% eigenvector
+    while tmp~=TM*tmp
+        %         just to keep track of iterations k
+        tmp=TM*tmp;
+        k=k+1;
+    end
+    rank=tmp;
 end
 
 function rankM=PageRanker(TM,factor)
 % creates a matrix using dampening factor alpha where the matrix is
 % computed by (1-alpha)*A+alpha*B where A is the Transition matrix of a
 % graph and B is 1/n*ones(n,n). n is the length of A
-
-B=sparse(ones(size(TM)));
-n=length(TM);
-rankM=(1-factor)*TM+(factor/n)*B;
+    B=ones(size(TM));
+    n=length(TM);
+    rankM=(1-factor)*TM+(factor/n)*B;
 end
