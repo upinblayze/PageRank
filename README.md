@@ -12,7 +12,7 @@ http://www.math.cornell.edu/~mec/Winter2009/RalucaRemus/Lecture3/lecture3.html
   -k returns the number iterations to reach convergence<br>
 
   -FilePath is the file path surrounded by single quotes to the sparse adjacency matrix file<br>
-  -alpha is the alpha value used to dampening (assignment says dampening factor .85=(1-alpha) so alpha=.15)
+  -alph is the alpha value used to dampening (assignment says dampening factor .85=(1-alpha) so alpha=.15)
 ========
 
 Page Rank Assignment
