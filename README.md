@@ -17,10 +17,32 @@ http://www.math.cornell.edu/~mec/Winter2009/RalucaRemus/Lecture3/lecture3.html
   -alpha is the alpha value used to dampening (assignment says dampening factor .85=(1-alpha) so alpha=.15)
   <br>
   
-To run the test matrix assigned
-files needed:<br>
--PageRank.m<br>
--graph.txt<br>
+<h1>To run the test matrix assigned</h1>
+<h2>files needed:</h2>
+-PageRank.m -Matlab script to implement Page Rank<br>
+-graph.txt -sparse matrix of test graph (if you use this, skip to 3)<br>
+<h2>Sub functions within PageRank.m</h2>
+<h3>createTransitionMatrix</h3>
+creates a transition matrix from sparse matrix on a file<br>
+	<b>input arguments</b><br>
+	*fileName - file name of sparse matrix in single quotes*<br>
+	<b>output</b><br>
+	*TM - resulting transition Matrix*<br>
+<h3>pageRankVector</h3>
+implements the page rank algorithm after dampening<br>
+	<b>input arguments</b><br>
+	*TM - Page Brin dampened matrix*<br>
+	<b>output</b><br>
+	*k - number of iterations to reach convergence*<br>
+	*rank - complete eigenvector of TM*<br>
+<h3>PageRanker</h3>
+dampens transition matrix using Page Brin (1-p) x A + p/n x B<br>
+	<b>input arguments</b><br>
+	*TM - Transition Matrix*<br>
+	*factor - dampening factor for Page Brin*<br>
+	<b>output</b><br>
+	*rankM - dampened Matrix*<br>
+<h2>Steps</h2>
 1. re-define the graph given into a sparse matrix where columns i j k are ordered as "from i to j with the value of k"<br>
 2. save the matrix as a text file. Because Matlab is numeric, here is the legend for what I used:<br> 
 		a=1<br>
